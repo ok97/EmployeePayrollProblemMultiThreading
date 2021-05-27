@@ -86,6 +86,39 @@ namespace EmployeePayrollProblem_MultiThreading
                 thread.Start();
             });
         }
+
+
+        /*UC3:- Ability to add multiple employee to payroll DB using Threads so as to get a 
+                better response
+                - Use the payroll_service database created in MS SQL.
+                - Ensure addEmployeeToPayroll is part of its own execution thread.
+                - Record the start and stop time to essentially determine the time taken for the execution using 
+                Thread and without Thread to check the performance.
+                - Demonstrate Thread Execution using Console Logs.
+                - Demonstrate Synchronization using Connection Coounters.
+        */
+
+        public void AddEmployeeListToDataBaseWithThreadSynchronization(List<EmployeeModel> employeeList)
+        {
+            ///For each employeeData present in list new thread is created and all threads run according to the time slot assigned by the thread scheduler.
+            employeeList.ForEach(employeeData =>
+            {
+                Task thread = new Task(() =>   //Lock the set of codes for the current employeeData
+                {
+                   
+                    lock (employeeData)
+                    {                       
+                       Console.WriteLine("Employee Being added" + employeeData.EmployeeName); // Printing the current thread id being utilised
+                       Console.WriteLine("Current thread id: " + Thread.CurrentThread.ManagedThreadId);  // Calling the method to add the data to the address book database
+                        this.AddEmployeeToDataBase(employeeData);
+                        Console.WriteLine("Employee added:" + employeeData.EmployeeName); // Indicating mesasage to end of data addition
+                    }
+
+                });
+                thread.Start();
+                thread.Wait();
+            });
+        }
         public bool AddEmployeeToDataBase(EmployeeModel model)
         {           
             try
